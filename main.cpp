@@ -41,6 +41,17 @@ void generator()
 
 void save(bool with_player, Player* player)
 {
+    if (with_player)
+    {
+        FILE *file;
+        char player_path[11];
+        sprintf(player_path, "player.txt");
+        file = fopen(player_path, "w");
+        char to_write[9];
+        sprintf(to_write, "%d\n%d\n%d\n%d\n", player->map_y, player->map_x, player->y, player->x);
+        fwrite(to_write, sizeof(to_write), 1, file);
+        fclose(file);
+    }
     char filename[10];
     sprintf(filename, "%4d-%4d", player->map_x, player->map_y);
     FILE *chunk = fopen(filename, "w");
@@ -49,6 +60,21 @@ void save(bool with_player, Player* player)
 }
 void load(bool with_player, Player* player)
 {
+    if (with_player)
+    {
+        FILE *file;
+        char player_path[11];
+        sprintf(player_path, "player.txt");
+        if ((file = fopen(player_path, "r")))
+        {
+            fscanf(file, "%d%d%d%d", &player->map_y, &player->map_x, &player->y, &player->x);
+        }
+        else 
+        {
+            file = fopen(player_path, "w");
+        }
+        fclose(file);
+    }
     char filename[10];
     sprintf(filename, "%4d-%4d", player->map_x, player->map_y);
     FILE* chunk;
@@ -89,6 +115,10 @@ void Player::interact(string input)
     {
         save(true, this);
     }    
+    if (input == "load")
+    {
+        load(true, this);
+    }
     // SHOULD BE MOVED INTO DIFFRENT FUNCTION
     for (int i=0; i<100; i++)
     {
@@ -118,7 +148,7 @@ void Player::interact(string input)
 int main()
 {
     Player player;
-    load(false, &player);
+    load(true, &player);
     string input;
     cout << "DON'T USE ctrl-d IT WILL BREAK EVERYTHING\n";
     for (;;)
